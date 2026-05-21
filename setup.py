@@ -8,7 +8,7 @@ setup(
     long_description_content_type="text/markdown",
     author="",
     author_email="",
-    url="https://github.com/your-org/douyin-fashion-clip-remix",
+    url="https://github.com/kaiwer1/douyin-fashion-clip-remix",
     packages=find_packages("src"),
     package_dir={"": "src"},
     python_requires=">=3.8",
