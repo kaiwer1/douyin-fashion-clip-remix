@@ -1,0 +1,66 @@
+# 违规词库 / Prohibited Words Library
+# 用于组合阶段合规检查
+
+price_inducement:
+  - word: "最低价"
+    risk: high
+  - word: "跳楼价"
+    risk: high
+  - word: "零元购"
+    risk: high
+  - word: "免费送"
+    risk: high
+  - word: "原价"
+    risk: medium
+  - word: "最低"
+    risk: medium
+
+exaggeration:
+  - word: "最好看"
+    risk: high
+  - word: "最好"
+    risk: high
+  - word: "第一"
+    risk: high
+  - word: "顶级"
+    risk: medium
+  - word: "天花板"
+    risk: medium
+  - word: "极致"
+    risk: medium
+  - word: "最"
+    risk: medium
+
+efficacy_claims:
+  - word: "瘦"
+    risk: high
+  - word: "减肥"
+    risk: high
+  - word: "永久"
+    risk: high
+  - word: "祛皱"
+    risk: high
+  - word: "抗皱"
+    risk: medium
+  - word: "防辐射"
+    risk: medium
+  - word: "治疗"
+    risk: high
+  - word: "药"
+    risk: high
+
+urgency:
+  - word: "马上涨价"
+    risk: high
+  - word: "最后机会"
+    risk: high
+  - word: "最后3件"
+    risk: high
+  - word: "马上抢"
+    risk: medium
+  - word: "抢购"
+    risk: medium
+  - word: "手慢无"
+    risk: medium
+  - word: "限时"
+    risk: medium

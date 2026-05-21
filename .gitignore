@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Environment
+.env
+.env.local
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temp files
+/tmp/
+frames/
+
+# Output
+output/
+*.mp4
+*.json
+!segments.json.example
+!edls.json.example
+
+# OS
+.DS_Store
+Thumbs.db

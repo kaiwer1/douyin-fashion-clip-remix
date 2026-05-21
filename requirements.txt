@@ -1,0 +1,5 @@
+# Core dependencies
+PyYAML>=6.0
+
+# FFmpeg is required but not pip-installable.
+# Install via: https://ffmpeg.org/download.html
