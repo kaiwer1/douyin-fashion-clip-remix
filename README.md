@@ -1,10 +1,13 @@
-# 抖音女装类目短视频混剪 / Douyin Fashion Clip Remix
+# 抖音带货短视频混剪 / Douyin E-commerce Clip Remix
 
 自动分析直播切片素材 → 分类 → 重组 → 渲染为多个不同版本的短视频。
 Automatically analyze live-stream clips → classify → compose → render into multiple short video variants.
 
-适用于抖音女装/服饰直播切片混剪。
-Designed for Douyin (TikTok) fashion/live-commerce short video remixing.
+**支持品类 / Supported Categories:**
+- ✅ **女装/服饰** (Fashion) — 穿搭展示、产品特写、促单话术
+- ✅ **零食食品** (Snacks) — 口感展示、产品特写、促单话术（通过类型映射）
+
+Designed for Douyin (TikTok) live-commerce short video remixing.
 
 ---
 
@@ -50,13 +53,26 @@ python scripts/run_pipeline.py --clips-dir /path/to/clips
 每 5 秒抽帧 → 调用豆包视觉 API → 按帧分类为:
 Frame extraction every 5 seconds → Doubao Vision API → classify each frame as:
 
-| 标签 / Label | 描述 / Description |
+**女装镜头类型 / Fashion Labels:**
+
+|| 标签 / Label | 描述 / Description |
 |-------------|-------------------|
 | `product_shot` | 产品特写 — 面料/细节近距离展示 / Close-up product detail |
 | `outfit_demo` | 穿搭展示 — 模特的全身/半身效果 / Model wearing the outfit |
 | `sales_pitch` | 促单话术 — 主播面对镜头的推荐 / Host selling to camera |
 | `transition` | 过渡画面 / Scene transition |
 | `other` | 其他 / Other |
+
+**零食镜头类型（通过类型映射） / Snacks Labels (via Type Mapping):**
+
+零食混剪复用同一分类器，通过类型映射适配：
+
+|| 服装标签 | 零食映射 | 描述 |
+|----------|---------|------|
+| `outfit_demo` | `taste_demo` | 口感展示 — 试吃、咀嚼、表情（核心镜头） |
+| `product_shot` | `product_closeup` | 产品特写 — 包装、外观、质感 |
+| `sales_pitch` | `sales_pitch` | 促单口播 — 价格对比、限时限量 |
+| `transition` | `usage_scene` | 场景使用 — 追剧、办公、聚会 |
 
 ### 第二步 组合 (Compose)
 三段式模板 / Three-act template:
