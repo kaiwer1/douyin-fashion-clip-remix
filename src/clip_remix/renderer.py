@@ -91,8 +91,8 @@ def cut_segment(source_file: str, start: float, end: float,
         "-c:v", "libx264", "-preset", "fast", "-crf", "22",
         "-af", af_filter,
         "-c:a", "aac", "-b:a", "128k",
-        "-vf", "scale=720:1280:force_original_aspect_ratio=decrease,"
-               "pad=720:1280:(ow-iw)/2:(oh-ih)/2:black",
+        "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,"
+               "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black",
         "-pix_fmt", "yuv420p",
         "-y", output_path
     ]
