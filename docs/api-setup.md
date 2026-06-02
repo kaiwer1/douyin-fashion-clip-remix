@@ -28,7 +28,38 @@ export DOUBAO_API_KEY="your-api-key-here"
 export DOUBAO_MODEL="doubao-seed-1-6-vision-250815"
 ```
 
-## 安全体验模式 / Safe Experience Mode
+## 可选替代：小米 MiMo API
+
+本项目也支持使用 **小米 MiMo-V2.5** 视觉模型替代豆包。
+
+### 获取 MiMo API Key
+
+1. 访问 [小米 MiMo 开放平台](https://platform.xiaomimimo.com/)
+2. 注册账号并登录
+3. 进入「API Key 管理」创建 Key
+4. **推荐使用专用 Token Plan**（延迟更低、频率限制更宽松）
+
+### 配置
+
+```bash
+# 通用 Key
+export MIMO_API_KEY="sk-xxxxxxxx"
+export MIMO_BASE_URL="https://api.xiaomimimo.com/v1"
+
+# 或使用专属 Token Plan（推荐）
+export MIMO_API_KEY="tp-xxxxxxxx"
+export MIMO_BASE_URL="https://token-plan-cn.xiaomimimo.com/v1"
+
+export MIMO_MODEL="mimo-v2.5"
+```
+
+### 与豆包对比
+
+| 特性 | 豆包 (Doubao) | MiMo-V2.5 |
+|------|-------------|-----------|
+| 响应速度 | 2-5秒/batch | 1-3秒/batch（专属Key更快） |
+| 限流 | 17批后触发429 | 更宽松（专属Key几乎不限） |
+| 准确率 | 良好 | 良好（对服装分类表现稳定） |
 
 如果遇到 HTTP 429 `SetLimitExceeded` 错误：
 

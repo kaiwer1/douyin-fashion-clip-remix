@@ -1,7 +1,7 @@
 # 抖音带货短视频混剪 / Douyin E-commerce Clip Remix
 
-自动分析直播切片素材 → 分类 → 重组 → 渲染为多个不同版本的短视频。
-Automatically analyze live-stream clips → classify → compose → render into multiple short video variants.
+自动分析直播切片素材 → 分类 → 重组 → 渲染为多个不同版本的短视频（1080x1920 竖屏高清）。
+Automatically analyze live-stream clips → classify → compose → render into multiple short video variants (1080x1920 portrait HD).
 
 **支持品类 / Supported Categories:**
 - ✅ **女装/服饰** (Fashion) — 穿搭展示、产品特写、促单话术
@@ -159,6 +159,9 @@ python scripts/render.py edls.json --output ./output/
 | `DOUBAO_API_KEY` | **(必须)** | 豆包视觉 API Key / Doubao Vision API Key |
 | `DOUBAO_BASE_URL` | `https://ark.cn-beijing.volces.com/api/v3` | API 基础地址 |
 | `DOUBAO_MODEL` | `doubao-seed-1-6-vision-250815` | 视觉模型名 |
+| `MIMO_API_KEY` | — | 小米 MiMo API Key（替代豆包） |
+| `MIMO_BASE_URL` | `https://api.xiaomimimo.com/v1` | MiMo 专属/通用 API 地址 |
+| `MIMO_MODEL` | `mimo-v2.5` | MiMo 视觉模型名 |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg 可执行文件路径 |
 | `FFPROBE_PATH` | `ffprobe` | ffprobe 可执行文件路径 |
 | `CLIP_REMIX_TMP` | `/tmp/clip-remix` | 临时工作目录 |
@@ -205,7 +208,7 @@ douyin-fashion-clip-remix/
 - 需要安装 FFmpeg（建议 5.0+ 版本）
 - 不包含字幕/OCR/片头片尾
 - 每批素材建议 5~15 条切片
-- API 有调用频率限制（约 17 批/5 分钟后触发 429）
+- API 有调用频率限制（MiMo 专属 Token Plan 延迟更低）
 
 ---
 
