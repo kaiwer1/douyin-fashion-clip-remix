@@ -123,7 +123,8 @@ def pick_segments(pool: dict, stype: str, min_dur: int, max_dur: int,
     return [], 0
 
 
-def compose_variants(pool: dict, n_variants: int = 4) -> List[dict]:
+def compose_variants(pool: dict, n_variants: int = 4,
+                     dedup: bool = False) -> List[dict]:
     """Generate n_variants different compositions using three-act template."""
     variants = []
     used_across_variants = set()
@@ -191,14 +192,29 @@ def compose_variants(pool: dict, n_variants: int = 4) -> List[dict]:
         }
 
         for seg in ordered_segments:
-            variant["segments"].append({
-                "type": seg["type"],
-                "source_file": seg["source_file"],
-                "source_clip": seg["source_clip"],
-                "start": seg["start"],
-                "end": seg["end"],
-                "duration": seg["end"] - seg["start"],
-            })
+            if dedup:
+                import random as _rd
+                _rd.seed(42 + vi * 13 + len(variant["segments"]))
+                offset = _rd.uniform(-1.0, 1.0)
+                seg_start = max(0, seg["start"] + offset)
+                seg_end = max(seg_start + 3, seg["end"] + offset)
+                variant["segments"].append({
+                    "type": seg["type"],
+                    "source_file": seg["source_file"],
+                    "source_clip": seg["source_clip"],
+                    "start": round(seg_start, 1),
+                    "end": round(seg_end, 1),
+                    "duration": round(seg_end - seg_start, 1),
+                })
+            else:
+                variant["segments"].append({
+                    "type": seg["type"],
+                    "source_file": seg["source_file"],
+                    "source_clip": seg["source_clip"],
+                    "start": seg["start"],
+                    "end": seg["end"],
+                    "duration": seg["end"] - seg["start"],
+                })
 
         variant["total_duration"] = sum(s["duration"] for s in variant["segments"])
 

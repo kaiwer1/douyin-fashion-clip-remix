@@ -29,11 +29,32 @@ def run_cmd(cmd: list, timeout: int = 300) -> tuple:
 
 
 def cut_segment(source_file: str, start: float, end: float,
-                 output_path: str) -> bool:
+                 output_path: str, slow_seek: bool = True,
+                 dedup: bool = False) -> bool:
     """
-    Cut a segment from source video with EBU R128 loudness normalization.
-    Dual-pass: measure first, then apply with precise parameters.
+    Cut a segment from source video with loudness normalization.
+    dedup=True: apply random visual tweaks for deduplication
     """
+    dur = end - start
+    import random
+    random.seed(hash((source_file, start, end)) % 10000)
+
+    # Build video filter with optional dedup tweaks
+    vf_parts = ["scale=1080:1920:force_original_aspect_ratio=decrease,"
+                "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black"]
+
+    if dedup:
+        b = round(random.uniform(0.97, 1.03), 3)
+        c = round(random.uniform(0.97, 1.03), 3)
+        s = round(random.uniform(0.97, 1.03), 3)
+        r = round(random.uniform(-1.0, 1.0), 2)
+        sh = round(random.uniform(0.9, 1.1), 2)
+        vf_parts.insert(0, f"eq=brightness={b - 1.0}:contrast={c}:saturation={s}")
+        vf_parts.append(f"rotate={r}*PI/180:fill=black")
+        vf_parts.append(f"unsharp=l={sh}")
+
+    vf_filter = ",".join(vf_parts)
+
     from . import utils as ut
     ffmpeg = ut.get_ffmpeg_path()
 
@@ -91,8 +112,7 @@ def cut_segment(source_file: str, start: float, end: float,
         "-c:v", "libx264", "-preset", "fast", "-crf", "22",
         "-af", af_filter,
         "-c:a", "aac", "-b:a", "128k",
-        "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,"
-               "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black",
+        "-vf", vf_filter,
         "-pix_fmt", "yuv420p",
         "-y", output_path
     ]
@@ -100,7 +120,7 @@ def cut_segment(source_file: str, start: float, end: float,
     return rc == 0 and os.path.exists(output_path) and os.path.getsize(output_path) > 10000
 
 
-def render_variant(variant: dict, output_dir: str) -> str:
+def render_variant(variant: dict, output_dir: str, dedup: bool = False) -> str:
     """Render a single variant EDL into a video file."""
     vid = variant["id"]
     segments = variant["segments"]
@@ -121,7 +141,7 @@ def render_variant(variant: dict, output_dir: str) -> str:
                 return None
 
         out_seg = os.path.join(output_dir, "%s_seg%02d.mp4" % (vid, i))
-        success = cut_segment(source, seg["start"], seg["end"], out_seg)
+        success = cut_segment(source, seg["start"], seg["end"], out_seg, dedup=dedup)
         if not success:
             log("  Cut failed: seg%d (%s %ss-%ss)" % (
                 i, source, seg["start"], seg["end"]))
@@ -183,6 +203,8 @@ def main():
                         default=os.path.join(utils.get_tmp_dir(), "edls.json"))
     parser.add_argument("--output", "-o", default=os.path.join(utils.get_tmp_dir(), "output"),
                         help="Output directory")
+    parser.add_argument("--dedup", action="store_true",
+                        help="Enable deduplication: random brightness/contrast/saturation/rotation tweaks")
     args = parser.parse_args()
 
     if not os.path.exists(args.edl_json):
@@ -201,7 +223,7 @@ def main():
 
     results = []
     for vi, variant in enumerate(variants):
-        result = render_variant(variant, args.output)
+        result = render_variant(variant, args.output, dedup=args.dedup)
         if result:
             results.append(result)
         if vi < len(variants) - 1:
