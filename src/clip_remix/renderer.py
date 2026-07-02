@@ -43,15 +43,33 @@ def cut_segment(source_file: str, start: float, end: float,
     vf_parts = ["scale=1080:1920:force_original_aspect_ratio=decrease,"
                 "pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black"]
 
+    import random as _rd
+    _rd.seed(hash((source_file, start, end)) % 10000)
+
     if dedup:
-        b = round(random.uniform(0.97, 1.03), 3)
-        c = round(random.uniform(0.97, 1.03), 3)
-        s = round(random.uniform(0.97, 1.03), 3)
-        r = round(random.uniform(-1.0, 1.0), 2)
-        sh = round(random.uniform(0.9, 1.1), 2)
+        # 1. 画面微调：亮度/对比度/饱和度 ±3%
+        b = round(_rd.uniform(0.97, 1.03), 3)
+        c = round(_rd.uniform(0.97, 1.03), 3)
+        s = round(_rd.uniform(0.97, 1.03), 3)
         vf_parts.insert(0, f"eq=brightness={b - 1.0}:contrast={c}:saturation={s}")
-        vf_parts.append(f"rotate={r}*PI/180:fill=black")
-        vf_parts.append(f"unsharp=l={sh}")
+        # 2. 随机旋转 -1°~1°
+        r = round(_rd.uniform(-1.0, 1.0), 2)
+        vf_parts.append(f"rotate={r}*PI/180:fillcolor=black")
+        # 3. 锐化微调
+        sh = round(_rd.uniform(0.9, 1.1), 2)
+        vf_parts.append(f"unsharp=la={sh}")
+        # 4. 动态缩放 0.98-1.02
+        z_factor = round(_rd.uniform(0.98, 1.02), 3)
+        vf_parts.append(f"scale=iw*{z_factor}:ih*{z_factor}:flags=bicubic")
+        # 5. 抽帧：输出帧率随机 24-28fps
+        output_fps = _rd.randint(24, 28)
+        # 6. 轻微变速：速度随机 0.97-1.03
+        speed = round(_rd.uniform(0.97, 1.03), 3)
+        vf_parts.append(f"setpts={1/speed}*PTS")
+        af_extra = f",atempo={speed}"
+    else:
+        output_fps = 30
+        af_extra = ""
 
     vf_filter = ",".join(vf_parts)
 
