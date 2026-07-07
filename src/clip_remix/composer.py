@@ -141,27 +141,33 @@ def compose_variants(pool: dict, n_variants: int = 4,
             rng.shuffle(pool[stype])
 
         used_clips = set()
-        strategy = vi % 3
+        strategy = vi % 4
 
         if strategy == 0:
-            prod_picks, prod_total = pick_segments(pool, "product_shot", 15, 25, used_clips)
-            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 15, 25, used_clips)
-            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 8, 15, used_clips)
+            # 策略A: 产品→穿搭→促单（三段式标准）
+            prod_picks, prod_total = pick_segments(pool, "product_shot", 10, 18, used_clips)
+            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 18, 30, used_clips)
+            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 5, 10, used_clips)
         elif strategy == 1:
-            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 15, 25, used_clips)
-            prod_picks, prod_total = pick_segments(pool, "product_shot", 15, 25, used_clips)
-            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 8, 15, used_clips)
-        else:
-            prod_picks, prod_total = pick_segments(pool, "product_shot", 15, 25, used_clips,
+            # 策略B: 穿搭先入眼→产品细看→促单
+            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 18, 30, used_clips)
+            prod_picks, prod_total = pick_segments(pool, "product_shot", 10, 18, used_clips)
+            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 5, 10, used_clips)
+        elif strategy == 2:
+            # 策略C: 痛点促单开篇→产品方案→穿搭展示（文章推荐）
+            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 5, 8, used_clips)
+            prod_picks, prod_total = pick_segments(pool, "product_shot", 10, 18, used_clips,
                                                     allow_dup_clips=True)
-            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 8, 15, used_clips)
             used_clips.clear()
-            for s in prod_picks:
-                used_clips.add(s["source_clip"])
-            for s in sales_picks:
-                used_clips.add(s["source_clip"])
-            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 15, 25, used_clips,
+            for s in sales_picks: used_clips.add(s["source_clip"])
+            for s in prod_picks: used_clips.add(s["source_clip"])
+            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 18, 30, used_clips,
                                                         allow_dup_clips=True)
+        else:
+            # 策略D: 产品快切→穿搭重点展示(留长)→促单收尾
+            prod_picks, prod_total = pick_segments(pool, "product_shot", 5, 10, used_clips)
+            outfit_picks, outfit_total = pick_segments(pool, "outfit_demo", 20, 35, used_clips)
+            sales_picks, sales_total = pick_segments(pool, "sales_pitch", 5, 8, used_clips)
 
         total = prod_total + outfit_total + sales_total
 
@@ -183,7 +189,15 @@ def compose_variants(pool: dict, n_variants: int = 4,
                 sales_total = sales_picks[0]["duration"]
 
         total = prod_total + outfit_total + sales_total
-        ordered_segments = prod_picks + outfit_picks + sales_picks
+        
+        # 策略2（痛点开篇）顺序：sales→product→outfit
+        # 其余策略：product/outfit→sales
+        if strategy == 2:
+            ordered_segments = sales_picks + prod_picks + outfit_picks
+        elif strategy == 1:
+            ordered_segments = outfit_picks + prod_picks + sales_picks
+        else:
+            ordered_segments = prod_picks + outfit_picks + sales_picks
 
         variant = {
             "id": "v%d" % (vi + 1),
